@@ -5,8 +5,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
-import logicaBD.DBClient;
-//import logicaNegocio.Client;
+//import logicaBD.DBClient;
+import logic.Client;
+import logic.ClientConnection;
 import logic.MD5;
 
 public class FrmClient extends javax.swing.JInternalFrame {
@@ -15,19 +16,19 @@ public class FrmClient extends javax.swing.JInternalFrame {
         initComponents();
         this.setSize(1056, 545);
         load();
-        loadClient();
+        //loadClient();
     }
 
     MD5 md5 = new MD5();
     DefaultTableModel model = new DefaultTableModel();
-    DBClient dBClient = new DBClient();
+    //DBClient dBClient = new DBClient();
 
     void load() {
         txtIdClient.setVisible(false);
         txtUser.setEditable(false);
         txtPassword.setEditable(false);
     }
-
+/*
     public void loadClient() throws Exception {
 
         model = new DefaultTableModel() {
@@ -56,7 +57,7 @@ public class FrmClient extends javax.swing.JInternalFrame {
         }
         tblClient.setModel(model);
         ocultarColumnas();
-    }
+    }*/
 
     void ocultarColumnas() {
         tblClient.getColumnModel().getColumn(0).setMaxWidth(0);
@@ -353,6 +354,7 @@ public class FrmClient extends javax.swing.JInternalFrame {
 
     private void btnSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSaveActionPerformed
         Client client = new Client();
+        ClientConnection socket = new ClientConnection("127.0.0.1", 9000);
 
         client.setName(txtName.getText());
         client.setLastName(txtLastName.getText());
@@ -367,13 +369,24 @@ public class FrmClient extends javax.swing.JInternalFrame {
         client.setPassword(md5.MD5(txtPassword.getText()));
 
         try {
-            if (dBClient.addClient(client) == true) {
+            
+            socket.createConnection();
+            boolean ans = socket.createClient(client);
+            if(ans==true){
+                JOptionPane.showMessageDialog(rootPane, "Registro Exitoso");
+                
+            }else{
+                JOptionPane.showMessageDialog(rootPane, "No se ha Podido Registrar");
+            }
+            socket.closeConnection();
+        
+            /*if (dBClient.addClient(client) == true) {
 
                 JOptionPane.showMessageDialog(rootPane, "Registro Exitoso");
                 clear();
             } else {
                 JOptionPane.showMessageDialog(rootPane, "No se ha Podido Registrar");
-            }
+            }*/
         } catch (Exception ex) {
             Logger.getLogger(FrmEmployee.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -383,7 +396,7 @@ public class FrmClient extends javax.swing.JInternalFrame {
             Logger.getLogger(FrmEmployee.class.getName()).log(Level.SEVERE, null, ex);
         }
         try {
-            loadClient();
+            //loadClient();
         } catch (Exception ex) {
             Logger.getLogger(FrmClient.class.getName()).log(Level.SEVERE, null, ex);
         }

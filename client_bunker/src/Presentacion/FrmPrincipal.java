@@ -264,7 +264,12 @@ public class FrmPrincipal extends javax.swing.JFrame {
     }//GEN-LAST:event_statisticMenuItemActionPerformed
 
     private void pendingMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_pendingMenuItemActionPerformed
-        FrmOrder form = new FrmOrder();
+        FrmOrder form = null;
+        try {
+            form = new FrmOrder();
+        } catch (Exception ex) {
+            Logger.getLogger(FrmPrincipal.class.getName()).log(Level.SEVERE, null, ex);
+        }
         Dimension size = form.getSize();
 
         int width = (screenSize.width - size.width) / 2;

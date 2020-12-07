@@ -4,6 +4,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
+import com.google.gson.Gson;
 
 public class ClientConnection {
 
@@ -43,6 +44,33 @@ public class ClientConnection {
         }
 
         return ans;
+    }
+    
+    
+    
+    public boolean createClient(Client client){
+        Gson objConvertidor= new Gson();
+        String ans ="";
+        
+        String JSON = objConvertidor.toJson(client);
+        
+        System.out.println("Mensaje a enviar: "+JSON);
+        try {
+            outMsg.writeUTF(JSON);
+            ans = inMsg.readUTF();
+            return true;
+        } catch (IOException ex) {
+            System.out.println("Error al realizar la conexión");
+            return false;
+        }
+
+        
+
+        /*ClsPersona objConvertido= objConvertidor.fromJson(JSON, ClsPersona.class);
+        
+        System.out.println("nombres: " + objConvertido.getNombres());
+        System.out.println("apellidos: " + objConvertido.getApellidos());        */
+
     }
 
 }

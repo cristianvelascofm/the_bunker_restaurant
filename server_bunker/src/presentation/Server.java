@@ -24,6 +24,7 @@ public class Server {
                 Socket socket;
                 socket = ss.accept();
                 System.out.println("Nueva Conexion Entrante: "+ socket);
+                ((ServerThread) new ServerThread(socket, idSession)).start();
                 idSession++;
             }
         } catch (IOException e) {
