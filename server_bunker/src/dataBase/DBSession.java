@@ -7,7 +7,7 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 //import java.sql.Statement;
 import javax.swing.JOptionPane;
-import logic.Session;
+import model.Session;
 
 public class DBSession {
 

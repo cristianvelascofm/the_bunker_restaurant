@@ -8,7 +8,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import javax.swing.JOptionPane;
-import logic.Client;
+import model.Client;
 
 public class DBClient {
 
@@ -179,7 +179,7 @@ public class DBClient {
     
     
         //Eliminar Cliente
-    public boolean deleteClient(Client e) throws Exception {
+    public boolean deleteClient(int idPerson) throws Exception {
         Connect mysql = new Connect();
         Connection cn = mysql.conectar();
         sSQL = "DELETE FROM client WHERE cliIdClient=?";
@@ -188,8 +188,8 @@ public class DBClient {
             PreparedStatement pst = cn.prepareStatement(sSQL);
             PreparedStatement pst2 = cn.prepareStatement(sSQL2);
 
-            pst.setInt(1, e.getIdPerson());
-            pst2.setInt(1, e.getIdPerson());
+            pst.setInt(1, idPerson);
+            pst2.setInt(1, idPerson);
 
             int n = pst.executeUpdate();
             if (n != 0) {
