@@ -9,6 +9,7 @@ import com.google.gson.Gson;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
+import model.Employee;
 
 public class ClientConnection {
 
@@ -191,5 +192,143 @@ public class ClientConnection {
         }
 
     }
+    
+    
+    
+    
+    
+    
+    
+    public boolean createEmployee(Employee employee) {
+        Gson jsonConverter = new Gson();
+        String ans = "";
+
+        String JSON = jsonConverter.toJson(employee);
+
+        try {
+            outMsg.writeUTF("create_employee");
+            ans = inMsg.readUTF();
+            System.out.println("Respuesta: " + ans);
+            outMsg.writeUTF(JSON);
+            System.out.println("Mensaje a enviar: " + JSON);
+            ans = inMsg.readUTF();
+
+            if (ans.equals("OK")) {
+                System.out.println("Ans; " + ans);
+                return true;
+            } else {
+                return false;
+            }
+
+        } catch (IOException ex) {
+            System.out.println("Error al realizar la conexión");
+            return false;
+        }
+    }
+
+    public boolean updateEmployee(Employee employee) {
+        Gson jsonConverter = new Gson();
+        String ans = "";
+
+        String JSON = jsonConverter.toJson(employee);
+
+        try {
+            outMsg.writeUTF("update_employee");
+            ans = inMsg.readUTF();
+            System.out.println("Respuesta: " + ans);
+            outMsg.writeUTF(JSON);
+            System.out.println("Mensaje a enviar: " + JSON);
+            ans = inMsg.readUTF();
+            if (ans.equals("OK")) {
+                System.out.println("Ans; " + ans);
+                return true;
+            } else {
+                return false;
+            }
+        } catch (IOException ex) {
+            System.out.println("Error al realizar la conexión");
+            return false;
+        }
+
+    }
+
+    public ArrayList<Object[]> fillEmployee() throws IOException, ClassNotFoundException {
+        String ans = "";
+        try {
+            outMsg.writeUTF("fill_employee");
+            ans = inMsg.readUTF();
+            System.out.println("Respuesta: " + ans);
+            outMsg.writeUTF("ok...");
+
+            ArrayList<Object[]> data = new ArrayList<>();
+            int numdata = Integer.parseInt(inMsg.readUTF());
+            System.out.println("Numero de datos: " + numdata);
+            inObject = new ObjectInputStream(socket.getInputStream());
+            for (int i = 0; i < numdata; i++) {
+
+                data.add((Object[]) inObject.readObject());
+
+            }
+            return data;
+
+        } catch (IOException ex) {
+            System.out.println("Error al realizar la conexión");
+            return null;
+
+        }
+
+    }
+
+    public ArrayList<Object[]> fillEmployeeSearch(String search) throws IOException, ClassNotFoundException {
+        String ans = "";
+        try {
+            outMsg.writeUTF("fill_employee_search");
+            ans = inMsg.readUTF();
+            System.out.println("Respuesta: " + ans);
+            outMsg.writeUTF("ok...");
+            outMsg.writeUTF(search);
+
+            ArrayList<Object[]> data = new ArrayList<>();
+            int numdata = Integer.parseInt(inMsg.readUTF());
+            System.out.println("Numero de datos: " + numdata);
+            inObject = new ObjectInputStream(socket.getInputStream());
+            for (int i = 0; i < numdata; i++) {
+
+                data.add((Object[]) inObject.readObject());
+
+            }
+            System.out.println("Datos Cliente: " + data.toString());
+            return data;
+
+        } catch (IOException ex) {
+            System.out.println("Error al realizar la conexión");
+            return null;
+
+        }
+
+    }
+
+    public boolean deleteEmployee(String id) {
+        String ans = "";
+        try {
+            outMsg.writeUTF("delete_employee");
+            ans = inMsg.readUTF();
+            System.out.println("Respuesta: " + ans);
+            outMsg.writeUTF(id);
+            if (inMsg.readUTF().equals("OK")) {
+                return true;
+            } else {
+                return false;
+            }
+
+        } catch (IOException ex) {
+            System.out.println("Error al realizar la conexión");
+            return false;
+
+        }
+
+    }
 
 }
+
+

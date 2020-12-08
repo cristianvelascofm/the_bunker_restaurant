@@ -31,7 +31,6 @@ public final class FrmClient extends javax.swing.JInternalFrame {
 
     public void loadClient() throws Exception {
         ClientConnection socket = new ClientConnection("127.0.0.1", 9000);
-        System.out.println("Conexion ..");
         model = new DefaultTableModel() {
             @Override
             public boolean isCellEditable(int row, int col) {
@@ -392,16 +391,7 @@ public final class FrmClient extends javax.swing.JInternalFrame {
         } catch (Exception ex) {
             Logger.getLogger(FrmEmployee.class.getName()).log(Level.SEVERE, null, ex);
         }
-        try {
-
-        } catch (Exception ex) {
-            Logger.getLogger(FrmEmployee.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        try {
-            //loadClient();
-        } catch (Exception ex) {
-            Logger.getLogger(FrmClient.class.getName()).log(Level.SEVERE, null, ex);
-        }
+      
         try {
             loadClient();
         } catch (Exception ex) {
@@ -494,7 +484,7 @@ public final class FrmClient extends javax.swing.JInternalFrame {
             } catch (Exception ex) {
                 Logger.getLogger(FrmEmployee.class.getName()).log(Level.SEVERE, null, ex);
             }
-        }        // TODO add your handling code here:
+        }        
     }//GEN-LAST:event_txtSearchKeyTyped
 
     private void btnDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeleteActionPerformed

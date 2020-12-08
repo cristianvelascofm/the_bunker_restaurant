@@ -183,7 +183,7 @@ public class DBEmployee {
     
     
         //Eliminar Empleado
-    public boolean deleteEmployee(Employee e) throws Exception {
+    public boolean deleteEmployee(int idPerson) throws Exception {
         Connect mysql = new Connect();
         Connection cn = mysql.conectar();
         sSQL = "DELETE FROM employee WHERE empIdEmployee=?";
@@ -192,8 +192,8 @@ public class DBEmployee {
             PreparedStatement pst = cn.prepareStatement(sSQL);
             PreparedStatement pst2 = cn.prepareStatement(sSQL2);
 
-            pst.setInt(1, e.getIdPerson());
-            pst2.setInt(1, e.getIdPerson());
+            pst.setInt(1, idPerson);
+            pst2.setInt(1, idPerson);
 
             int n = pst.executeUpdate();
             if (n != 0) {

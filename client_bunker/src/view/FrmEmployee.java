@@ -1,20 +1,19 @@
 package view;
 
+import client.ClientConnection;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
-import logicaNegocio.MD5;
-import logicaBD.DBEmployee;
-import logicaNegocio.Employee;
+import model.MD5;
+import model.Employee;
 
 public class FrmEmployee extends javax.swing.JInternalFrame {
 
     MD5 md5 = new MD5();
     DefaultTableModel modelo = new DefaultTableModel();
-    DBEmployee dBEmployee = new DBEmployee();
 
     public FrmEmployee() throws Exception {
         initComponents();
@@ -44,7 +43,7 @@ public class FrmEmployee extends javax.swing.JInternalFrame {
 
     //Cargar Tabla
     public void loadTableEmployee() throws Exception {
-
+        ClientConnection socket = new ClientConnection("127.0.0.1", 9000);
         modelo = new DefaultTableModel() {
             @Override
             public boolean isCellEditable(int row, int col) {
@@ -65,14 +64,22 @@ public class FrmEmployee extends javax.swing.JInternalFrame {
 
         ArrayList<Object[]> data = new ArrayList<>();
 
-        data = dBEmployee.fillTableEmployee();
-        for (int i = 0; i < data.size(); i++) {
+        try {
+            socket.createConnectionMsg();
+            System.out.println("Conexión Establecida");
+            data = socket.fillEmployee();
 
-            modelo.addRow(data.get(i));
+            for (int i = 0; i < data.size(); i++) {
 
+                modelo.addRow(data.get(i));
+
+            }
+            tblEmployee.setModel(modelo);
+            ocultarColumnas();
+            socket.closeConnection();
+        } catch (Exception ex) {
+            Logger.getLogger(FrmEmployee.class.getName()).log(Level.SEVERE, null, ex);
         }
-        tblEmployee.setModel(modelo);
-        ocultarColumnas();
     }
 
     void ocultarColumnas() {
@@ -407,7 +414,7 @@ public class FrmEmployee extends javax.swing.JInternalFrame {
 
     private void btnSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSaveActionPerformed
         Employee employee = new Employee();
-
+        ClientConnection socket = new ClientConnection("127.0.0.1", 9000);
         employee.setName(txtName.getText());
         employee.setLastName(txtLastName.getText());
         int select = cbxGender.getSelectedIndex();
@@ -424,20 +431,25 @@ public class FrmEmployee extends javax.swing.JInternalFrame {
         employee.setState((String.valueOf(cbxState.getItemAt(slct))));
 
         try {
-            if (dBEmployee.addEmployee(employee) == true) {
 
-                JOptionPane.showMessageDialog(rootPane, "Empleado Agregado");
-                clear();
+            socket.createConnectionMsg();
+            boolean ans = socket.createEmployee(employee);
+            if (ans == true) {
+                JOptionPane.showMessageDialog(rootPane, "Registro Exitoso");
+
             } else {
-                JOptionPane.showMessageDialog(rootPane, "No se ha Podido Agregar");
+                JOptionPane.showMessageDialog(rootPane, "No se ha Podido Registrar");
             }
+            socket.closeConnection();
+
         } catch (Exception ex) {
             Logger.getLogger(FrmEmployee.class.getName()).log(Level.SEVERE, null, ex);
         }
+
         try {
             loadTableEmployee();
         } catch (Exception ex) {
-            Logger.getLogger(FrmEmployee.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(FrmClient.class.getName()).log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_btnSaveActionPerformed
 
@@ -485,7 +497,7 @@ public class FrmEmployee extends javax.swing.JInternalFrame {
             }
 
         } else {
-
+            ClientConnection socket = new ClientConnection("127.0.0.1", 9000);
             modelo = new DefaultTableModel() {
                 @Override
                 public boolean isCellEditable(int row, int col) {
@@ -505,20 +517,24 @@ public class FrmEmployee extends javax.swing.JInternalFrame {
             modelo.addColumn("Tipo");
             modelo.addColumn("Estado");
 
-            ArrayList<Object[]> datos = new ArrayList<>();
+            ArrayList<Object[]> data = new ArrayList<>();
 
             try {
-                datos = dBEmployee.fillTableSearchEmployee(txtSearch.getText());
+                socket.createConnectionMsg();
+                System.out.println("Conexión Establecida");
+                data = socket.fillEmployeeSearch(txtSearch.getText());
+
+                for (int i = 0; i < data.size(); i++) {
+
+                    modelo.addRow(data.get(i));
+
+                }
+                tblEmployee.setModel(modelo);
+                ocultarColumnas();
+                socket.closeConnection();
             } catch (Exception ex) {
                 Logger.getLogger(FrmEmployee.class.getName()).log(Level.SEVERE, null, ex);
             }
-            for (int i = 0; i < datos.size(); i++) {
-
-                modelo.addRow(datos.get(i));
-
-            }
-            tblEmployee.setModel(modelo);
-            ocultarColumnas();
         }
     }//GEN-LAST:event_txtSearchKeyTyped
 
@@ -533,52 +549,57 @@ public class FrmEmployee extends javax.swing.JInternalFrame {
     }//GEN-LAST:event_tblEmployeeMouseClicked
 
     private void btnUpDateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnUpDateActionPerformed
+
         
-        Employee employee = new Employee();
         if (txtId.getText().length() == 0) {
             JOptionPane.showMessageDialog(rootPane, "Seleccione un Empleado Primero");
-        }else{
+        } else {
+            
+            Employee employee = new Employee();
+            ClientConnection socket = new ClientConnection("127.0.0.1", 9000);
             employee.setIdPerson(Integer.parseInt(txtId.getText()));
-        }
-        
-        
-        
-        employee.setName(txtName.getText());
-        employee.setLastName(txtLastName.getText());
-        int select = cbxGender.getSelectedIndex();
-        employee.setGender((String.valueOf(cbxGender.getItemAt(select))));
-        int sel = cbxDocumentType.getSelectedIndex();
-        employee.setDocumentType((String.valueOf(cbxDocumentType.getItemAt(sel))));
-        employee.setDocumentNumber(txtDocumentNumber.getText());
-        employee.setEmail(txtEmail.getText());
-        int selct = cbxEmployeeType.getSelectedIndex();
-        employee.setEmployeeType((String.valueOf(cbxEmployeeType.getItemAt(selct))));
-        employee.setLogin(txtUser.getText());
-        employee.setPassword(md5.MD5(txtPassword.getText()));
-        int slct = cbxState.getSelectedIndex();
-        employee.setState((String.valueOf(cbxState.getItemAt(slct))));
 
-        try {
-            if (dBEmployee.updateEmployee(employee) == true) {
+            employee.setName(txtName.getText());
+            employee.setLastName(txtLastName.getText());
+            int select = cbxGender.getSelectedIndex();
+            employee.setGender((String.valueOf(cbxGender.getItemAt(select))));
+            int sel = cbxDocumentType.getSelectedIndex();
+            employee.setDocumentType((String.valueOf(cbxDocumentType.getItemAt(sel))));
+            employee.setDocumentNumber(txtDocumentNumber.getText());
+            employee.setEmail(txtEmail.getText());
+            int selct = cbxEmployeeType.getSelectedIndex();
+            employee.setEmployeeType((String.valueOf(cbxEmployeeType.getItemAt(selct))));
+            employee.setLogin(txtUser.getText());
+            employee.setPassword(md5.MD5(txtPassword.getText()));
+            int slct = cbxState.getSelectedIndex();
+            employee.setState((String.valueOf(cbxState.getItemAt(slct))));
 
-                JOptionPane.showMessageDialog(rootPane, "Empleado Actualizado");
-                clear();
-            } else {
-                JOptionPane.showMessageDialog(rootPane, "No se ha Podido Actualizar");
+            try {
+
+                socket.createConnectionMsg();
+                boolean ans = socket.updateEmployee(employee);
+                if (ans == true) {
+                    JOptionPane.showMessageDialog(rootPane, "Actualización Exitoso");
+
+                } else {
+                    JOptionPane.showMessageDialog(rootPane, "No se ha Podido Actualizar");
+                }
+                socket.closeConnection();
+
+            } catch (Exception ex) {
+                Logger.getLogger(FrmEmployee.class.getName()).log(Level.SEVERE, null, ex);
             }
-        } catch (Exception ex) {
-            Logger.getLogger(FrmEmployee.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        try {
-            loadTableEmployee();
-        } catch (Exception ex) {
-            Logger.getLogger(FrmEmployee.class.getName()).log(Level.SEVERE, null, ex);
-        }
 
+            try {
+                loadTableEmployee();
+            } catch (Exception ex) {
+                Logger.getLogger(FrmClient.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
     }//GEN-LAST:event_btnUpDateActionPerformed
 
     private void btnDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeleteActionPerformed
-         if (txtId.getText().length() == 0) {
+        if (txtId.getText().length() == 0) {
             JOptionPane.showConfirmDialog(rootPane, "Seleccione el Empleado a Eliminar");
             tblEmployee.requestFocus();
             return;
@@ -586,14 +607,24 @@ public class FrmEmployee extends javax.swing.JInternalFrame {
         int confirmacion = JOptionPane.showConfirmDialog(rootPane, "¿Está seguro de Eliminar este Empleado?", "Confirmar", 2);
         if (confirmacion == 0) {
             Employee employee = new Employee();
-            employee.setIdPerson(Integer.parseInt(txtId.getText()));
+            ClientConnection socket = new ClientConnection("127.0.0.1", 9000);
+            int idPerson = Integer.parseInt(txtId.getText());
+            employee.setIdPerson(idPerson);
             try {
-                dBEmployee.deleteEmployee(employee);
+                socket.createConnectionMsg();
+                System.out.println("Conexion establecinda");
+                boolean data = socket.deleteEmployee(String.valueOf(idPerson));
+                if (data == true) {
+                    JOptionPane.showMessageDialog(rootPane, "Eliminado");
+
+                } else {
+                    JOptionPane.showMessageDialog(rootPane, "Imposible Eliminar");
+                }
+                socket.closeConnection();
             } catch (Exception ex) {
                 Logger.getLogger(FrmEmployee.class.getName()).log(Level.SEVERE, null, ex);
             }
-
-            JOptionPane.showMessageDialog(rootPane, "El Empleado se ha Eliminado");
+        
             try {
                 loadTableEmployee();
             } catch (Exception ex) {
