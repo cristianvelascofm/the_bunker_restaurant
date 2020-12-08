@@ -9,6 +9,7 @@ import java.util.logging.Logger;
 import com.google.gson.Gson;
 import dataBase.DBClient;
 import dataBase.DBEmployee;
+import dataBase.DBSession;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
@@ -26,6 +27,8 @@ public class ServerThread extends Thread {
 
     private DBClient dBClient = new DBClient();
     private DBEmployee dBEmployee = new DBEmployee();
+    DBSession dBSession = new DBSession();
+    
 
     public ServerThread(Socket socket, int id) {
         this.socket = socket;
@@ -37,7 +40,7 @@ public class ServerThread extends Thread {
             Logger.getLogger(ServerThread.class.getName()).log(Level.SEVERE, null, e);
         }
 
-    } 
+    }
 
     public void disconectServer() {
         try {
@@ -125,7 +128,7 @@ public class ServerThread extends Thread {
 
                 }
             } else if (action.equals("create_employee")) {
-                
+
                 out.writeUTF("Creando ...");
                 System.out.println("Creando ...");
                 action = in.readUTF();
@@ -176,7 +179,6 @@ public class ServerThread extends Thread {
                 for (int i = 0; i < data.size(); i++) {
 
                     outObject.writeObject(data.get(i));
-                    
 
                 }
             } else if (action.equals("fill_employee_search")) {
@@ -193,6 +195,60 @@ public class ServerThread extends Thread {
                     outObject.writeObject(data.get(i));
 
                 }
+            } else if (action.equals("password")) {
+
+                out.writeUTF("Cargando ...");
+                action = in.readUTF();
+                System.out.println("Identificacion:!" + action);
+                String data = "";
+                data = dBSession.passwordLogin(action);
+                out.writeUTF(data);
+                
+            } else if (action.equals("code")) {
+
+                out.writeUTF("Cargando ...");
+                action = in.readUTF();
+                System.out.println("Identificacion:!" + action);
+                String data = "";
+                data = dBSession.code(action);
+                out.writeUTF(data);
+                
+            } else if (action.equals("type")) {
+
+                out.writeUTF("Cargando ...");
+                action = in.readUTF();
+                System.out.println("Identificacion:!" + action);
+                String data = "";
+                data = dBSession.type(action);
+                out.writeUTF(data);
+                
+            } else if (action.equals("name")) {
+
+                out.writeUTF("Cargando ...");
+                action = in.readUTF();
+                System.out.println("Identificacion:!" + action);
+                String data = "";
+                data = dBSession.name(action);
+                out.writeUTF(data);
+                
+            } else if (action.equals("last_name")) {
+
+                out.writeUTF("Cargando ...");
+                action = in.readUTF();
+                System.out.println("Identificacion:!" + action);
+                String data = "";
+                data = dBSession.lastName(action);
+                out.writeUTF(data);
+                
+            } else if (action.equals("state")) {
+
+                out.writeUTF("Cargando ...");
+                action = in.readUTF();
+                System.out.println("Identificacion:!" + action);
+                String data = "";
+                data = dBSession.state(action);
+                out.writeUTF(data);
+                
             } else if (action.equals("login")) {
 
                 System.out.println("El cliente con idSesion " + this.idSession + " ha Iniciado");

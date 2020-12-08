@@ -1,12 +1,11 @@
 package view;
 
+import client.ClientConnection;
 import java.util.ArrayList;
 import javax.swing.JOptionPane;
-import logicaBD.Connect;
-import logicaBD.DBSession;
-import logicaNegocio.Employee;
-import logicaNegocio.MD5;
-import logicaNegocio.Session;
+import model.Employee;
+import model.MD5;
+import model.Session;
 
 public final class FrmLogin extends javax.swing.JFrame {
 
@@ -20,16 +19,15 @@ public final class FrmLogin extends javax.swing.JFrame {
     // public static Connector cn = new Connector();
     MD5 md5 = new MD5();
     //DBEmployee dBEmployee = new DBEmployee();
-    DBSession dBSession = new DBSession();
+
     Session session = new Session();
-    Connect connect = new Connect();
 
     void connection() {
-        if (connect.conectar() == null) {
-            JOptionPane.showMessageDialog(rootPane, "NO CONECTADO");
-            FrmLogin.this.dispose();
-            System.exit(0);
-        }
+        /* if (connect.conectar() == null) {
+         JOptionPane.showMessageDialog(rootPane, "NO CONECTADO");
+         FrmLogin.this.dispose();
+         System.exit(0);
+         }*/
     }
 
     void entrar() {
@@ -46,18 +44,47 @@ public final class FrmLogin extends javax.swing.JFrame {
                 return;
             }
             //DBSession dBSession = new DBSession();
+            ClientConnection socket = new ClientConnection("127.0.0.1", 9000);
             Employee employee = new Employee();
             employee.setLogin(txtDocumentNumber.getText());
             String login = txtDocumentNumber.getText();
             employee.setPassword(md5.MD5(pswPassword.getText()));
+            String pass = "";
+            String code = "";
+            String type = "";
+            String name = "";
+            String lastName = "";
+            String state = "";
 
-            if (md5.MD5(pswPassword.getText()).equals(dBSession.passwordLogin(txtDocumentNumber.getText()))) {
+            try {
+                socket.createConnectionMsg();
+                pass = socket.passwordLogin(txtDocumentNumber.getText());
+                socket.closeConnection();
+            } catch (Exception e) {
+            }
 
-                String code = dBSession.code(login);
-                String type = dBSession.type(code);
-                String name = dBSession.name(login);
-                String lastName = dBSession.lastName(login);
-                String state = dBSession.state(code);
+            if (md5.MD5(pswPassword.getText()).equals(pass)) {
+                ClientConnection sock = new ClientConnection("127.0.0.1", 9000);
+                try {
+                    sock.createConnectionMsg();
+                    code = sock.code(login);
+                    sock.closeConnection();
+                    sock.createConnectionMsg();
+                    type = sock.type(code);
+                    sock.closeConnection();
+                    sock.createConnectionMsg();
+                    name = sock.name(login);
+                    sock.closeConnection();
+                    sock.createConnectionMsg();
+                    lastName = sock.lastName(login);
+                    sock.closeConnection();
+                    sock.createConnectionMsg();
+                    state = sock.state(code);
+                    sock.closeConnection();
+                } catch (Exception e) {
+
+                }
+
                 System.out.println("State " + state);
                 if ("Activo".equals(state)) {
                     this.dispose();
@@ -78,8 +105,8 @@ public final class FrmLogin extends javax.swing.JFrame {
 
                             FrmPrincipal.txtType.setText(type);
                             //cn.loginChef();
-                            iniciarSesion(Integer.parseInt(code));
-                            connector();
+                            //iniciarSesion(Integer.parseInt(code));
+                           // connector();
 
                         } else {
 
@@ -87,8 +114,8 @@ public final class FrmLogin extends javax.swing.JFrame {
 
                     } else {
                         FrmPrincipal.txtType.setText(type);
-                        iniciarSesion(Integer.parseInt(code));
-                        connector();
+                        //iniciarSesion(Integer.parseInt(code));
+                        //connector();
 
                     }
 
@@ -105,7 +132,7 @@ public final class FrmLogin extends javax.swing.JFrame {
                     FrmPrincipal.menuOrder.setVisible(false);
                     FrmPrincipal.meuAdmin.setVisible(false);
                     FrmPrincipal.txtType.setText("Cliente");
-                    connector();
+                    //connector();
                     form.toFront();
                     form.setVisible(true);
                 }
@@ -120,13 +147,12 @@ public final class FrmLogin extends javax.swing.JFrame {
         }
     }
 
-    void iniciarSesion(int idPerson) throws Exception {
+    /*void iniciarSesion(int idPerson) throws Exception {
 
-        session.setIdPerson(idPerson);
-        dBSession.logIn(session);
+     session.setIdPerson(idPerson);
+     socket.logIn(session);
 
-    }
-
+     }*/
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -214,7 +240,7 @@ public final class FrmLogin extends javax.swing.JFrame {
         this.dispose();
     }//GEN-LAST:event_btnCloseActionPerformed
 
-    public void connector() {
+    /*public void connector() {
         ArrayList<Thread> clients = new ArrayList<>();
         for (int i = 0; i < 1; i++) { // Un cliente a la vez
             clients.add(new Connector(i));
@@ -222,9 +248,7 @@ public final class FrmLogin extends javax.swing.JFrame {
         for (Thread thread : clients) {
             thread.start();
         }
-    }
-
-  
+    }*/
 
     /**
      * @param args the command line arguments

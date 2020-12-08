@@ -192,13 +192,7 @@ public class ClientConnection {
         }
 
     }
-    
-    
-    
-    
-    
-    
-    
+
     public boolean createEmployee(Employee employee) {
         Gson jsonConverter = new Gson();
         String ans = "";
@@ -329,6 +323,137 @@ public class ClientConnection {
 
     }
 
+    public String passwordLogin(String id) {
+        String ans = "";
+        try {
+            outMsg.writeUTF("password");
+            ans = inMsg.readUTF();
+            System.out.println("Respuesta: " + ans);
+            outMsg.writeUTF(id);
+            String pass = inMsg.readUTF();
+            System.out.println("Contraseña: "+ pass );
+            return pass;
+
+        } catch (IOException ex) {
+            System.out.println("Error al realizar la conexión");
+            return "";
+
+        }
+
+    }
+    
+    public String code(String id) {
+        String ans = "";
+        try {
+            outMsg.writeUTF("code");
+            ans = inMsg.readUTF();
+            System.out.println("Respuesta: " + ans);
+            outMsg.writeUTF(id);
+            String pass = inMsg.readUTF();
+            System.out.println("Código: "+ pass );
+            return pass;
+
+        } catch (IOException ex) {
+            System.out.println("Error al realizar la conexión");
+            return "";
+
+        }
+
+    }
+    
+    public String type(String id) {
+        String ans = "";
+        try {
+            outMsg.writeUTF("type");
+            ans = inMsg.readUTF();
+            System.out.println("Respuesta: " + ans);
+            outMsg.writeUTF(id);
+            String pass = inMsg.readUTF();
+            System.out.println("Tipo: "+ pass );
+            return pass;
+
+        } catch (IOException ex) {
+            System.out.println("Error al realizar la conexión");
+            return "";
+
+        }
+
+    }
+    
+    public String name(String id) {
+        String ans = "";
+        try {
+            outMsg.writeUTF("name");
+            ans = inMsg.readUTF();
+            System.out.println("Respuesta: " + ans);
+            outMsg.writeUTF(id);
+            String pass = inMsg.readUTF();
+            System.out.println("Nombre: "+ pass );
+            return pass;
+
+        } catch (IOException ex) {
+            System.out.println("Error al realizar la conexión");
+            return "";
+
+        }
+
+    }
+    
+    public String lastName(String id) {
+        String ans = "";
+        try {
+            outMsg.writeUTF("last_name");
+            ans = inMsg.readUTF();
+            System.out.println("Respuesta: " + ans);
+            outMsg.writeUTF(id);
+            String pass = inMsg.readUTF();
+            System.out.println("Apellido: "+ pass );
+            return pass;
+
+        } catch (IOException ex) {
+            System.out.println("Error al realizar la conexión");
+            return "";
+
+        }
+
+    }
+    public String state(String id) {
+        String ans = "";
+        try {
+            outMsg.writeUTF("state");
+            ans = inMsg.readUTF();
+            System.out.println("Respuesta: " + ans);
+            outMsg.writeUTF(id);
+            String pass = inMsg.readUTF();
+            System.out.println("Estado: "+ pass );
+            return pass;
+
+        } catch (IOException ex) {
+            System.out.println("Error al realizar la conexión");
+            return "";
+
+        }
+
+    }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+
 }
-
-
