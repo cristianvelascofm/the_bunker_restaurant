@@ -1,6 +1,7 @@
 package view;
 
-import logicaNegocio.Client;
+import client.ClientConnection;
+import model.Client;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.logging.Level;
@@ -8,7 +9,7 @@ import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 import logicaBD.DBClient;
-import logicaNegocio.MD5;
+import model.MD5;
 
 public class FrmSignIn extends javax.swing.JFrame {
 
@@ -222,6 +223,7 @@ public class FrmSignIn extends javax.swing.JFrame {
 
     private void btnSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSaveActionPerformed
         Client client = new Client();
+        ClientConnection socket = new ClientConnection("127.0.0.1", 9000);
 
         client.setName(txtName.getText());
         client.setLastName(txtLastName.getText());
@@ -236,17 +238,16 @@ public class FrmSignIn extends javax.swing.JFrame {
         client.setPassword(md5.MD5(txtPassword.getText()));
 
         try {
-            if (dBClient.addClient(client) == true) {
 
+            socket.createConnectionMsg();
+            boolean ans = socket.createClient(client);
+            if (ans == true) {
                 JOptionPane.showMessageDialog(rootPane, "Registro Exitoso");
-                clear();
+
             } else {
                 JOptionPane.showMessageDialog(rootPane, "No se ha Podido Registrar");
             }
-        } catch (Exception ex) {
-            Logger.getLogger(FrmEmployee.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        try {
+            socket.closeConnection();
 
         } catch (Exception ex) {
             Logger.getLogger(FrmEmployee.class.getName()).log(Level.SEVERE, null, ex);

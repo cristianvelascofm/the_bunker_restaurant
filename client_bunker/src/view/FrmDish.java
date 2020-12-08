@@ -1,5 +1,6 @@
 package view;
 
+import client.ClientConnection;
 import java.awt.Image;
 import java.io.File;
 import java.text.DecimalFormat;
@@ -12,9 +13,8 @@ import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
-import logicaBD.DBCategory;
-import logicaBD.DBDish;
-import logicaNegocio.Dish;
+
+import model.Dish;
 
 public class FrmDish extends javax.swing.JInternalFrame {
 
@@ -26,18 +26,21 @@ public class FrmDish extends javax.swing.JInternalFrame {
         loadDish();
     }
 
-    DBDish dBDish = new DBDish();
-    DBCategory dBCategory = new DBCategory();
-
     DecimalFormat format = new DecimalFormat("###,###.##");
     private String dir = "";
     DefaultTableModel model = new DefaultTableModel();
 
     public void loadCategory() throws Exception {
-
+        ClientConnection socket = new ClientConnection("127.0.0.1", 9000);
         cbxCategory.removeAllItems();
         ArrayList<String> category = new ArrayList<>();
-        category = dBCategory.category();
+        try {
+            socket.createConnectionMsg();
+            category = socket.fillCategory();
+            socket.closeConnection();
+        } catch (Exception e) {
+        }
+
         for (int i = 0; i < category.size(); i++) {
             cbxCategory.addItem(category.get(i));
         }
@@ -45,7 +48,7 @@ public class FrmDish extends javax.swing.JInternalFrame {
     }
 
     void loadDish() throws Exception {
-        DBDish dBDish = new DBDish();
+        ClientConnection socket = new ClientConnection("127.0.0.1", 9000);
         model = new DefaultTableModel() {
             @Override
             public boolean isCellEditable(int row, int col) {
@@ -60,8 +63,13 @@ public class FrmDish extends javax.swing.JInternalFrame {
         model.addColumn("Photo");
 
         ArrayList<Object[]> data = new ArrayList<>();
+        try {
+            socket.createConnectionMsg();
+            data = socket.fillDish();
+            socket.closeConnection();
+        } catch (Exception e) {
+        }
 
-        data = dBDish.fillTableDish();
         for (int i = 0; i < data.size(); i++) {
 
             model.addRow(data.get(i));
@@ -284,6 +292,7 @@ public class FrmDish extends javax.swing.JInternalFrame {
     private void btnSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSaveActionPerformed
 
         Dish dish = new Dish();
+        ClientConnection socket = new ClientConnection("127.0.0.1", 9000);
         int sel = cbxCategory.getSelectedIndex();
         String category = String.valueOf(cbxCategory.getItemAt(sel));
         if ("Comidas Especiales".equals(category)) {
@@ -306,7 +315,8 @@ public class FrmDish extends javax.swing.JInternalFrame {
         dish.setPhoto(dir);
 
         try {
-            if (dBDish.addDish(dish) == true) {
+            socket.createConnectionMsg();
+            if (socket.createDish(dish) == true) {
                 JOptionPane.showMessageDialog(rootPane, "Plato Agregado");
             } else {
                 JOptionPane.showMessageDialog(rootPane, "No se ha Poddido Agregar");
@@ -357,7 +367,7 @@ public class FrmDish extends javax.swing.JInternalFrame {
             }
 
         } else {
-
+            ClientConnection socket = new ClientConnection("127.0.0.1", 9000);
             model = new DefaultTableModel() {
                 @Override
                 public boolean isCellEditable(int row, int col) {
@@ -375,7 +385,10 @@ public class FrmDish extends javax.swing.JInternalFrame {
             ArrayList<Object[]> datos = new ArrayList<>();
 
             try {
-                datos = dBDish.fillTableDishMenu(txtSearch.getText());
+                socket.createConnectionMsg();
+                
+                datos = socket.fillDishSearch(txtSearch.getText());
+                socket.closeConnection();
             } catch (Exception ex) {
                 Logger.getLogger(FrmDish.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -397,15 +410,20 @@ public class FrmDish extends javax.swing.JInternalFrame {
         }
         int confirmacion = JOptionPane.showConfirmDialog(rootPane, "¿Está seguro de Eliminar este Plato?", "Confirmar", 2);
         if (confirmacion == 0) {
+            ClientConnection socket = new ClientConnection("127.0.0.1", 9000);
             Dish dish = new Dish();
             dish.setIdDish(Integer.parseInt(txtIdDish.getText()));
             try {
-                dBDish.deleteDish(dish);
+                socket.createConnectionMsg();
+                if (socket.deleteDish(txtIdDish.getText()) == true) {
+                    JOptionPane.showMessageDialog(rootPane, "El Plato se ha Eliminado");
+                } else {
+                    JOptionPane.showMessageDialog(rootPane, "No se ha Eliminado");
+                }
             } catch (Exception ex) {
                 Logger.getLogger(FrmDish.class.getName()).log(Level.SEVERE, null, ex);
             }
 
-            JOptionPane.showMessageDialog(rootPane, "El Plato se ha Eliminado");
             try {
                 loadDish();
             } catch (Exception ex) {
@@ -420,6 +438,7 @@ public class FrmDish extends javax.swing.JInternalFrame {
     }//GEN-LAST:event_btnDeleteActionPerformed
 
     private void btnUpdateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnUpdateActionPerformed
+        ClientConnection socket = new ClientConnection("127.0.0.1", 9000);
         Dish dish = new Dish();
         if (txtIdDish.getText().length() == 0) {
             JOptionPane.showMessageDialog(rootPane, "Seleccione un Plato Primero");
@@ -449,7 +468,8 @@ public class FrmDish extends javax.swing.JInternalFrame {
         dish.setPhoto(dir);
 
         try {
-            if (dBDish.updateDish(dish) == true) {
+            socket.createConnectionMsg();
+            if (socket.updateDish(dish) == true) {
                 JOptionPane.showMessageDialog(rootPane, "Plato Actualizado");
             } else {
                 JOptionPane.showMessageDialog(rootPane, "No se ha Poddido Actualizar");

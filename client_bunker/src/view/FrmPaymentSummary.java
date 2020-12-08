@@ -1,9 +1,7 @@
 package view;
 
-
+import client.ClientConnection;
 import java.util.ArrayList;
-import logicaBD.DBClient;
-import logicaBD.DBOrder;
 
 public class FrmPaymentSummary extends javax.swing.JInternalFrame {
 
@@ -12,17 +10,29 @@ public class FrmPaymentSummary extends javax.swing.JInternalFrame {
         this.setSize(666, 658);
         load();
     }
-    DBOrder dBOrder = new DBOrder();
-    DBClient dBClient = new DBClient();
+
     private int orderNumber = 0;
     int table = -1;
 
     void load() throws Exception {
+        ClientConnection socket = new ClientConnection("127.0.0.1", 9000);
+        try {
+            socket.createConnectionMsg();
+            orderNumber = Integer.parseInt(socket.idOrder());
+            socket.closeConnection();
+        } catch (Exception e) {
+        }
 
-        orderNumber = dBOrder.idOrder();
         lblOrder.setText("Pedido No: " + orderNumber);
         txtName.setText(FrmPrincipal.txtName.getText());
-        txtGender.setText(dBClient.clientGender(Integer.parseInt(FrmPrincipal.txtId.getText())));
+        
+        ClientConnection sock = new ClientConnection("127.0.0.1", 9000);
+        try {
+            sock.createConnectionMsg();
+            txtGender.setText(sock.clientGender(Integer.parseInt(FrmPrincipal.txtId.getText())));
+        } catch (Exception e) {
+        }
+        
         txtTable.setText(String.valueOf(tableGenerator()));
     }
 
@@ -32,20 +42,20 @@ public class FrmPaymentSummary extends javax.swing.JInternalFrame {
         return table;
 
     }
-  public void con(String type, int id) {
+
+    public void con(String type, int id) {
         ArrayList<Thread> clients = new ArrayList<>();
-        
-        clients.add(new Cona(type, id));
-        
+
         /*
         
-        for (int i = 0; i < 1; i++) { // Un cliente a la vez
-            clients.add(new Connector(i));
-        }*/
+         for (int i = 0; i < 1; i++) { // Un cliente a la vez
+         clients.add(new Connector(i));
+         }*/
         for (Thread thread : clients) {
             thread.start();
         }
     }
+
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -152,7 +162,7 @@ public class FrmPaymentSummary extends javax.swing.JInternalFrame {
     private void btnOKActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnOKActionPerformed
         this.dispose();
         con(FrmPrincipal.txtType.getText(), Integer.parseInt(FrmPrincipal.txtId.getText()));
-      //  FrmLogin.cn.incio();
+        //  FrmLogin.cn.incio();
     }//GEN-LAST:event_btnOKActionPerformed
 
 

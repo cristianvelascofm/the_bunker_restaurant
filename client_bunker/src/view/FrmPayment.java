@@ -1,5 +1,6 @@
 package view;
 
+import client.ClientConnection;
 import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.sql.Date;
@@ -10,13 +11,11 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
-import logicaBD.DBCharge;
-import logicaBD.DBOrder;
-import logicaNegocio.Charge;
-import logicaNegocio.Order;
+import model.Charge;
+import model.Order;
 import static view.FrmPrincipal.desktop;
 
-public class FrmPayment extends javax.swing.JInternalFrame {
+public final class FrmPayment extends javax.swing.JInternalFrame {
 
     public FrmPayment() throws Exception {
         initComponents();
@@ -31,16 +30,14 @@ public class FrmPayment extends javax.swing.JInternalFrame {
     }
     Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
     DefaultTableModel modelPayment = new DefaultTableModel();
-    DBOrder dBOrder = new DBOrder();
-    DBCharge dBCharge = new DBCharge();
+
     int numberOrder = 0;
-    private double total= 0.0;
+    private double total = 0.0;
     private double iva = 0.35; //iva del 3.5% del Total del Pedido
 
     Order order = new Order();
     Charge charge = new Charge();
 
-    
     public double getTotal() {
         return total;
     }
@@ -57,8 +54,6 @@ public class FrmPayment extends javax.swing.JInternalFrame {
         this.iva = iva;
     }
 
-    
-    
     public void loadOrder() {
 
         modelPayment = new DefaultTableModel() {
@@ -107,19 +102,26 @@ public class FrmPayment extends javax.swing.JInternalFrame {
     }
 
     public void orderNumberGenerator() throws Exception {
-        int number = dBOrder.idOrder();
+        ClientConnection socket = new ClientConnection("127.0.0.1", 9000);
+        int number = -1;
+        try {
+            socket.createConnectionMsg();
+            number = Integer.parseInt(socket.idOrder());
+        } catch (Exception e) {
+        }
+
         numberOrder = number + 1;
         lblOrderNumber.setText("N: " + numberOrder);
     }
 
-    public  double calcTotalPay() {
+    public double calcTotalPay() {
 
         for (int i = 0; i <= tblOrder.getRowCount() - 1; i++) {
 
             total = (Double.parseDouble(modelPayment.getValueAt(i, 3).toString())) + total;
 
         }
-        
+
         return (total * iva) + total; //Valor Total a Pagar con Iva Incluido
 
     }
@@ -156,7 +158,7 @@ public class FrmPayment extends javax.swing.JInternalFrame {
         order.setIdClient(1);
         Calendar cal;
         int d, m, a;
-
+        ClientConnection socket = new ClientConnection("127.0.0.1", 9000);
         cal = dtchOrderDate.getCalendar();
         d = cal.get(Calendar.DAY_OF_MONTH);
         m = cal.get(Calendar.MONTH);
@@ -166,7 +168,17 @@ public class FrmPayment extends javax.swing.JInternalFrame {
         order.setIvaOrder(iva);// establecemos el Iva total del pedido
         order.setTotalOrder(Double.parseDouble(txtTotal.getText()));
         order.setState("PENDIENTE");
-        dBOrder.addOrder(order);
+        try {
+            socket.createConnectionMsg();
+            if (socket.createOrder(order) == true) {
+                JOptionPane.showMessageDialog(rootPane, "Orden Agregada");
+            } else {
+                JOptionPane.showMessageDialog(rootPane, "Imposible Crear Orden");
+            }
+            socket.closeConnection();
+        } catch (Exception e) {
+        }
+
     }
 
     void createCharge() throws Exception {
@@ -176,17 +188,21 @@ public class FrmPayment extends javax.swing.JInternalFrame {
             charge.setIdDish(Integer.parseInt(modelPayment.getValueAt(i, 0).toString()));
             charge.setQuantityDish(Integer.parseInt(modelPayment.getValueAt(i, 2).toString()));
             charge.setSalePriceDish(Double.parseDouble(modelPayment.getValueAt(i, 3).toString()));
-
-            if (dBCharge.addCharge(charge)) {
-                JOptionPane.showMessageDialog(rootPane, "Orden Agregada");
-            } else {
-                JOptionPane.showMessageDialog(rootPane, "Imposible Agregar, Por Favor Revise");
+            ClientConnection socket = new ClientConnection("127.0.0.1", 9000);
+            try {
+                socket.createConnectionMsg();
+                if (socket.createCharge(charge)) {
+                    JOptionPane.showMessageDialog(rootPane, "Orden Agregada");
+                } else {
+                    JOptionPane.showMessageDialog(rootPane, "Imposible Agregar, Por Favor Revise");
+                }
+                socket.closeConnection();
+            } catch (Exception e) {
             }
 
         }
-        
-        //FrmDishMenu.orderList = null;
 
+        //FrmDishMenu.orderList = null;
     }
 
     @SuppressWarnings("unchecked")
@@ -362,8 +378,7 @@ public class FrmPayment extends javax.swing.JInternalFrame {
             Logger.getLogger(FrmPayment.class.getName()).log(Level.SEVERE, null, ex);
         }
         this.dispose();
-        
-        
+
         FrmPaymentSummary form = null;
         try {
             form = new FrmPaymentSummary();
@@ -378,7 +393,7 @@ public class FrmPayment extends javax.swing.JInternalFrame {
         desktop.add(form);
         form.toFront();
         form.setVisible(true);
-        
+
     }//GEN-LAST:event_btnPayActionPerformed
 
 

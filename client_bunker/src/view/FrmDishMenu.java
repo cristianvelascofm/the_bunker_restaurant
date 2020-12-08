@@ -1,5 +1,6 @@
 package view;
 
+import client.ClientConnection;
 import java.awt.Dimension;
 import java.awt.Image;
 import java.awt.Toolkit;
@@ -10,7 +11,6 @@ import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
-import logicaBD.DBDish;
 import static view.FrmPrincipal.desktop;
 
 public class FrmDishMenu extends javax.swing.JInternalFrame {
@@ -34,7 +34,7 @@ public class FrmDishMenu extends javax.swing.JInternalFrame {
     };
 
     public void loadDish(String category) throws Exception {
-        DBDish dBDish = new DBDish();
+        ClientConnection socket = new ClientConnection("127.0.0.1", 9000);
         model = new DefaultTableModel() {
             @Override
             public boolean isCellEditable(int row, int col) {
@@ -49,7 +49,14 @@ public class FrmDishMenu extends javax.swing.JInternalFrame {
         model.addColumn("Photo");
 
         ArrayList<Object[]> data = new ArrayList<>();
-        data = dBDish.fillTableDishMenu(category);
+        
+        try {
+            socket.createConnectionMsg();
+            data = socket.fillDishMenu(category);
+            socket.closeConnection();
+        } catch (Exception e) {
+        }
+        
 
         for (int i = 0; i < data.size(); i++) {
 

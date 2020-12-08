@@ -89,13 +89,13 @@ public class DBDish {
         }
     }
     
-     public boolean deleteDish(Dish d) throws Exception {
+     public boolean deleteDish(int idDish) throws Exception {
         Connect mysql = new Connect();
         Connection cn = mysql.conectar();
         sSQL = "DELETE FROM dish WHERE disIdDish=?";
         try {
             PreparedStatement pst = cn.prepareStatement(sSQL);
-            pst.setInt(1, d.getIdDish());
+            pst.setInt(1, idDish);
 
             int n = pst.executeUpdate();
             if (n != 0) {
@@ -163,8 +163,8 @@ public class DBDish {
         return datos;
 
     }
-
-    public ArrayList<Object[]> fillTableDishMenu(String category) throws Exception {
+    
+     public ArrayList<Object[]> fillTableDishMenu(String category) throws Exception {
 
         Connect mysql = new Connect();
         Connection cn = mysql.conectar();
@@ -213,4 +213,53 @@ public class DBDish {
 
     }
 
+    public ArrayList<Object[]> fillTableDishSearch(String name) throws Exception {
+
+        Connect mysql = new Connect();
+        Connection cn = mysql.conectar();
+        totalRegistro = 0;
+        ArrayList<Object[]> datos = new ArrayList<>();
+
+        sSQL = "SELECT d.disIdDish, d.disIdCategory, c.catCategoryName, d.disDishName, d.disDishPrice, d.disPhoto "
+                + "FROM dish d INNER JOIN category c ON d.disIdCategory = c.catIdCategory "
+                + "WHERE d.disDishName= '" + name + "' "
+                + "ORDER BY catCategoryName DESC";
+        try {
+
+            PreparedStatement pst = cn.prepareStatement(sSQL);
+            resultado = pst.executeQuery();
+            resultadoMeta = resultado.getMetaData();
+
+        } catch (Exception e) {
+            System.out.println("No Correcto" + e);
+        }
+        try {
+            while (resultado.next()) {
+                Object[] filas = new Object[6];
+                for (int i = 0; i < resultadoMeta.getColumnCount(); i++) {
+
+                    filas[i] = resultado.getObject(i + 1);
+
+                }
+                totalRegistro = totalRegistro + 1;
+                datos.add(filas);
+            }
+        } catch (Exception e) {
+
+            JOptionPane.showConfirmDialog(null, e);
+            return null;
+        } finally {
+            try {
+                cn.close();
+
+            } catch (SQLException sqle) {
+                throw new Exception("Error cerrar " + sqle.getMessage());
+            }
+
+        }
+
+        return datos;
+
+    }
+    
 }

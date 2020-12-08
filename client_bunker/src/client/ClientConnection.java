@@ -9,7 +9,10 @@ import com.google.gson.Gson;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
+import model.Charge;
+import model.Dish;
 import model.Employee;
+import model.Order;
 
 public class ClientConnection {
 
@@ -331,7 +334,7 @@ public class ClientConnection {
             System.out.println("Respuesta: " + ans);
             outMsg.writeUTF(id);
             String pass = inMsg.readUTF();
-            System.out.println("Contraseña: "+ pass );
+            System.out.println("Contraseña: " + pass);
             return pass;
 
         } catch (IOException ex) {
@@ -341,7 +344,7 @@ public class ClientConnection {
         }
 
     }
-    
+
     public String code(String id) {
         String ans = "";
         try {
@@ -350,7 +353,7 @@ public class ClientConnection {
             System.out.println("Respuesta: " + ans);
             outMsg.writeUTF(id);
             String pass = inMsg.readUTF();
-            System.out.println("Código: "+ pass );
+            System.out.println("Código: " + pass);
             return pass;
 
         } catch (IOException ex) {
@@ -360,7 +363,7 @@ public class ClientConnection {
         }
 
     }
-    
+
     public String type(String id) {
         String ans = "";
         try {
@@ -369,7 +372,7 @@ public class ClientConnection {
             System.out.println("Respuesta: " + ans);
             outMsg.writeUTF(id);
             String pass = inMsg.readUTF();
-            System.out.println("Tipo: "+ pass );
+            System.out.println("Tipo: " + pass);
             return pass;
 
         } catch (IOException ex) {
@@ -379,7 +382,7 @@ public class ClientConnection {
         }
 
     }
-    
+
     public String name(String id) {
         String ans = "";
         try {
@@ -388,7 +391,7 @@ public class ClientConnection {
             System.out.println("Respuesta: " + ans);
             outMsg.writeUTF(id);
             String pass = inMsg.readUTF();
-            System.out.println("Nombre: "+ pass );
+            System.out.println("Nombre: " + pass);
             return pass;
 
         } catch (IOException ex) {
@@ -398,7 +401,7 @@ public class ClientConnection {
         }
 
     }
-    
+
     public String lastName(String id) {
         String ans = "";
         try {
@@ -407,7 +410,7 @@ public class ClientConnection {
             System.out.println("Respuesta: " + ans);
             outMsg.writeUTF(id);
             String pass = inMsg.readUTF();
-            System.out.println("Apellido: "+ pass );
+            System.out.println("Apellido: " + pass);
             return pass;
 
         } catch (IOException ex) {
@@ -417,6 +420,7 @@ public class ClientConnection {
         }
 
     }
+
     public String state(String id) {
         String ans = "";
         try {
@@ -425,8 +429,212 @@ public class ClientConnection {
             System.out.println("Respuesta: " + ans);
             outMsg.writeUTF(id);
             String pass = inMsg.readUTF();
-            System.out.println("Estado: "+ pass );
+            System.out.println("Estado: " + pass);
             return pass;
+
+        } catch (IOException ex) {
+            System.out.println("Error al realizar la conexión");
+            return "";
+
+        }
+
+    }
+
+    public ArrayList<String> fillCategory() throws IOException, ClassNotFoundException {
+        String ans = "";
+        try {
+            outMsg.writeUTF("fill_category");
+            ans = inMsg.readUTF();
+            System.out.println("Respuesta: " + ans);
+            outMsg.writeUTF("ok...");
+
+            ArrayList<String> data = new ArrayList<>();
+            int numdata = Integer.parseInt(inMsg.readUTF());
+            System.out.println("Numero de datos: " + numdata);
+            inObject = new ObjectInputStream(socket.getInputStream());
+            for (int i = 0; i < numdata; i++) {
+
+                data.add((String) inObject.readObject());
+
+            }
+            return data;
+
+        } catch (IOException ex) {
+            System.out.println("Error al realizar la conexión");
+            return null;
+
+        }
+
+    }
+
+    public ArrayList<Object[]> fillDish() throws IOException, ClassNotFoundException {
+        String ans = "";
+        try {
+            outMsg.writeUTF("fill_dish");
+            ans = inMsg.readUTF();
+            System.out.println("Respuesta: " + ans);
+            outMsg.writeUTF("ok...");
+
+            ArrayList<Object[]> data = new ArrayList<>();
+            int numdata = Integer.parseInt(inMsg.readUTF());
+            System.out.println("Numero de datos: " + numdata);
+            inObject = new ObjectInputStream(socket.getInputStream());
+            for (int i = 0; i < numdata; i++) {
+
+                data.add((Object[]) inObject.readObject());
+
+            }
+            return data;
+
+        } catch (IOException ex) {
+            System.out.println("Error al realizar la conexión");
+            return null;
+
+        }
+
+    }
+
+    public boolean createDish(Dish dish) {
+        Gson jsonConverter = new Gson();
+        String ans = "";
+
+        String JSON = jsonConverter.toJson(dish);
+
+        try {
+            outMsg.writeUTF("create_dish");
+            ans = inMsg.readUTF();
+            System.out.println("Respuesta: " + ans);
+            outMsg.writeUTF(JSON);
+            System.out.println("Mensaje a enviar: " + JSON);
+            ans = inMsg.readUTF();
+
+            if (ans.equals("OK")) {
+                System.out.println("Ans; " + ans);
+                return true;
+            } else {
+                return false;
+            }
+
+        } catch (IOException ex) {
+            System.out.println("Error al realizar la conexión");
+            return false;
+        }
+    }
+
+    public boolean updateDish(Dish dish) {
+        Gson jsonConverter = new Gson();
+        String ans = "";
+
+        String JSON = jsonConverter.toJson(dish);
+
+        try {
+            outMsg.writeUTF("update_dish");
+            ans = inMsg.readUTF();
+            System.out.println("Respuesta: " + ans);
+            outMsg.writeUTF(JSON);
+            System.out.println("Mensaje a enviar: " + JSON);
+            ans = inMsg.readUTF();
+            if (ans.equals("OK")) {
+                System.out.println("Ans; " + ans);
+                return true;
+            } else {
+                return false;
+            }
+        } catch (IOException ex) {
+            System.out.println("Error al realizar la conexión");
+            return false;
+        }
+
+    }
+
+    public boolean deleteDish(String id) {
+        String ans = "";
+        try {
+            outMsg.writeUTF("delete_dish");
+            ans = inMsg.readUTF();
+            System.out.println("Respuesta: " + ans);
+            outMsg.writeUTF(id);
+            if (inMsg.readUTF().equals("OK")) {
+                return true;
+            } else {
+                return false;
+            }
+
+        } catch (IOException ex) {
+            System.out.println("Error al realizar la conexión");
+            return false;
+
+        }
+
+    }
+
+    public ArrayList<Object[]> fillDishSearch(String search) throws IOException, ClassNotFoundException {
+        String ans = "";
+        try {
+            outMsg.writeUTF("fill_dish_search");
+            ans = inMsg.readUTF();
+            System.out.println("Respuesta: " + ans);
+            outMsg.writeUTF("ok...");
+            outMsg.writeUTF(search);
+
+            ArrayList<Object[]> data = new ArrayList<>();
+            int numdata = Integer.parseInt(inMsg.readUTF());
+            System.out.println("Numero de datos: " + numdata);
+            inObject = new ObjectInputStream(socket.getInputStream());
+            for (int i = 0; i < numdata; i++) {
+
+                data.add((Object[]) inObject.readObject());
+
+            }
+            System.out.println("Datos Cliente: " + data.toString());
+            return data;
+
+        } catch (IOException ex) {
+            System.out.println("Error al realizar la conexión");
+            return null;
+
+        }
+
+    }
+
+    public ArrayList<Object[]> fillDishMenu(String category) throws IOException, ClassNotFoundException {
+        String ans = "";
+        try {
+            outMsg.writeUTF("fill_dish_menu");
+            ans = inMsg.readUTF();
+            System.out.println("Respuesta: " + ans);
+            outMsg.writeUTF("ok...");
+            outMsg.writeUTF(category);
+
+            ArrayList<Object[]> data = new ArrayList<>();
+            int numdata = Integer.parseInt(inMsg.readUTF());
+            System.out.println("Numero de datos: " + numdata);
+            inObject = new ObjectInputStream(socket.getInputStream());
+            for (int i = 0; i < numdata; i++) {
+
+                data.add((Object[]) inObject.readObject());
+
+            }
+            System.out.println("Datos Cliente: " + data.toString());
+            return data;
+
+        } catch (IOException ex) {
+            System.out.println("Error al realizar la conexión");
+            return null;
+
+        }
+
+    }
+
+    public String orderNumberFinal() {
+        String ans = "";
+        try {
+            outMsg.writeUTF("order_number");
+            ans = inMsg.readUTF();
+            System.out.println("Respuesta: " + ans);
+            String order = inMsg.readUTF();
+            System.out.println("Ordcen: " + order);
+            return order;
 
         } catch (IOException ex) {
             System.out.println("Error al realizar la conexión");
@@ -437,23 +645,112 @@ public class ClientConnection {
     }
     
     
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+    public String idOrder() {
+        String ans = "";
+        try {
+            outMsg.writeUTF("order_number");
+            ans = inMsg.readUTF();
+            System.out.println("Respuesta: " + ans);
+            String order = inMsg.readUTF();
+            System.out.println("Orden: " + order);
+            return order;
 
+        } catch (IOException ex) {
+            System.out.println("Error al realizar la conexión");
+            return "";
+
+        }
+
+    }
+
+    
+    
+    
+    public boolean createOrder(Order order) {
+        Gson jsonConverter = new Gson();
+        String ans = "";
+
+        String JSON = jsonConverter.toJson(order);
+
+        try {
+            outMsg.writeUTF("create_order");
+            ans = inMsg.readUTF();
+            System.out.println("Respuesta: " + ans);
+            outMsg.writeUTF(JSON);
+            System.out.println("Mensaje a enviar: " + JSON);
+            ans = inMsg.readUTF();
+
+            if (ans.equals("OK")) {
+                System.out.println("Ans; " + ans);
+                return true;
+            } else {
+                return false;
+            }
+
+        } catch (IOException ex) {
+            System.out.println("Error al realizar la conexión");
+            return false;
+        }
+    }
+    
+    
+    
+     public boolean createCharge(Charge charge) {
+        Gson jsonConverter = new Gson();
+        String ans = "";
+
+        String JSON = jsonConverter.toJson(charge);
+
+        try {
+            outMsg.writeUTF("create_charge");
+            ans = inMsg.readUTF();
+            System.out.println("Respuesta: " + ans);
+            outMsg.writeUTF(JSON);
+            System.out.println("Mensaje a enviar: " + JSON);
+            ans = inMsg.readUTF();
+
+            if (ans.equals("OK")) {
+                System.out.println("Ans; " + ans);
+                return true;
+            } else {
+                return false;
+            }
+
+        } catch (IOException ex) {
+            System.out.println("Error al realizar la conexión");
+            return false;
+        }
+    }
+    
+     public String clientGender(int id) {
+        String ans = "";
+        try {
+            outMsg.writeUTF("last_name");
+            ans = inMsg.readUTF();
+            System.out.println("Respuesta: " + ans);
+            outMsg.writeUTF(String.valueOf(id));
+            String pass = inMsg.readUTF();
+            System.out.println("Género: " + pass);
+            return pass;
+
+        } catch (IOException ex) {
+            System.out.println("Error al realizar la conexión");
+            return "";
+
+        }
+
+    }
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
 }
