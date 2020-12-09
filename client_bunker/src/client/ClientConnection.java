@@ -743,13 +743,51 @@ public class ClientConnection {
 
     
     
+    public ArrayList<Object[]> orderHold() throws IOException, ClassNotFoundException {
+        String ans = "";
+        try {
+            outMsg.writeUTF("order_hold");
+            ans = inMsg.readUTF();
+            System.out.println("Respuesta: " + ans);
+            outMsg.writeUTF("ok...");
+
+            ArrayList<Object[]> data = new ArrayList<>();
+            int numdata = Integer.parseInt(inMsg.readUTF());
+            System.out.println("Numero de datos: " + numdata);
+            inObject = new ObjectInputStream(socket.getInputStream());
+            for (int i = 0; i < numdata; i++) {
+
+                data.add((Object[]) inObject.readObject());
+
+            }
+            
+            return data;
+
+        } catch (IOException ex) {
+            System.out.println("Error al realizar la conexión");
+            return null;
+
+        }
+    
+    }
     
     
     
-    
-    
-    
-    
+     public String serverState() {
+        String ans = "";
+        try {
+            outMsg.writeUTF("server_state");
+            ans = inMsg.readUTF();
+            System.out.println("Estado del Servidor: " + ans);
+            return ans;
+
+        } catch (IOException ex) {
+            System.out.println("Error al realizar la conexión");
+            return "";
+
+        }
+
+    }
     
     
     

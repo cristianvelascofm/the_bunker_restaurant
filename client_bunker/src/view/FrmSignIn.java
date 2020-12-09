@@ -8,13 +8,13 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
-import logicaBD.DBClient;
+
 import model.MD5;
 
 public class FrmSignIn extends javax.swing.JFrame {
 
     MD5 md5 = new MD5();
-    DBClient dBClient = new DBClient();
+    
 
     public FrmSignIn() {
         initComponents();
@@ -34,6 +34,7 @@ public class FrmSignIn extends javax.swing.JFrame {
         txtPassword.setText("");
 
     }
+    
 
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents

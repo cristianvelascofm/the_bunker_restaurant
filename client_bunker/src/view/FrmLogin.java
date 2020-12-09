@@ -14,6 +14,7 @@ public final class FrmLogin extends javax.swing.JFrame {
         this.setSize(487, 607);
         this.setLocationRelativeTo(null);
         connection();
+        connectServer();
         //this.setUndecorated(true);
     }
     // public static Connector cn = new Connector();
@@ -28,6 +29,20 @@ public final class FrmLogin extends javax.swing.JFrame {
          FrmLogin.this.dispose();
          System.exit(0);
          }*/
+    }
+    
+    void connectServer(){
+        ClientConnection socket = new ClientConnection("127.0.0.1", 9000);
+        String stateServer = "";
+        try {
+            socket.createConnectionMsg();
+            stateServer = socket.serverState();
+            socket.closeConnection();
+        } catch (Exception e) {
+        }
+        if(!stateServer.equals("OK")){
+            JOptionPane.showMessageDialog(rootPane, "Servidor no Conectado");
+        }
     }
 
     void entrar() {

@@ -39,7 +39,6 @@ public class ServerThread extends Thread {
     private DBCategory dBCategory = new DBCategory();
     private DBOrder dBOrder = new DBOrder();
     private DBCharge dBCharge = new DBCharge();
-    
 
     public ServerThread(Socket socket, int id) {
         this.socket = socket;
@@ -302,7 +301,7 @@ public class ServerThread extends Thread {
                     outObject.writeObject(data.get(i));
 
                 }
-            }else if (action.equals("fill_dish_menu")) {
+            } else if (action.equals("fill_dish_menu")) {
 
                 out.writeUTF("Cargando ...");
                 action = in.readUTF();
@@ -316,7 +315,7 @@ public class ServerThread extends Thread {
                     outObject.writeObject(data.get(i));
 
                 }
-            }  else if (action.equals("create_dish")) {
+            } else if (action.equals("create_dish")) {
 
                 out.writeUTF("Creando ...");
                 System.out.println("Creando ...");
@@ -391,14 +390,32 @@ public class ServerThread extends Thread {
                     System.out.println("Error al Crear");
                 }
 
-            }  else if (action.equals("client_gender")) {
+            } else if (action.equals("client_gender")) {
 
-               out.writeUTF("Cargando ...");
+                out.writeUTF("Cargando ...");
                 action = in.readUTF();
                 System.out.println("Identificacion:!" + action);
                 String data = "";
                 data = dBClient.clientGender(Integer.parseInt(action));
                 out.writeUTF(data);
+
+            } else if (action.equals("order_hold")) {
+
+                out.writeUTF("Cargando ...");
+                action = in.readUTF();
+                System.out.println("Resp:!" + action);
+                ArrayList<Object[]> data = new ArrayList<>();
+                data = dBOrder.fillTableOrder();
+                out.writeUTF(String.valueOf(data.size()));
+                outObject = new ObjectOutputStream(socket.getOutputStream());
+                for (int i = 0; i < data.size(); i++) {
+
+                    outObject.writeObject(data.get(i));
+
+                }
+            } else if (action.equals("server_state")) {
+
+                out.writeUTF("OK");
 
             } else if (action.equals("login")) {
 

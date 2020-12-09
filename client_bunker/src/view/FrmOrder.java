@@ -1,12 +1,13 @@
 package view;
 
+import client.ClientConnection;
 import java.io.File;
 import java.util.ArrayList;
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
-import logicaBD.DBOrder;
+
 
 public class FrmOrder extends javax.swing.JInternalFrame {
 
@@ -17,12 +18,13 @@ public class FrmOrder extends javax.swing.JInternalFrame {
     }
     
     
-    DBOrder dBOrder = new DBOrder();
+    
     
     DefaultTableModel model = new DefaultTableModel();
 
     void loadOrder() throws Exception {
-        DBOrder dBOrder = new DBOrder();
+        ClientConnection socket = new ClientConnection("127.0.0.1", 9000);
+        
         model = new DefaultTableModel() {
             @Override
             public boolean isCellEditable(int row, int col) {
@@ -34,8 +36,13 @@ public class FrmOrder extends javax.swing.JInternalFrame {
         model.addColumn("Estado");
 
         ArrayList<Object[]> data = new ArrayList<>();
-
-        data = dBOrder.fillTableOrder();
+        try {
+            socket.createConnectionMsg();
+            data =socket.orderHold();
+            socket.closeConnection();
+        } catch (Exception e) {
+        }
+        
         for (int i = 0; i < data.size(); i++) {
 
             model.addRow(data.get(i));
