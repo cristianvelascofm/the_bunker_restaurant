@@ -2,6 +2,8 @@ package view;
 
 import client.ClientConnection;
 import java.util.ArrayList;
+import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
 
 public class FrmPaymentSummary extends javax.swing.JInternalFrame {
 
@@ -9,10 +11,51 @@ public class FrmPaymentSummary extends javax.swing.JInternalFrame {
         initComponents();
         this.setSize(666, 658);
         load();
+        loadOrder();
     }
-
+    DefaultTableModel modelPayment = new DefaultTableModel();
     private int orderNumber = 0;
     int table = -1;
+    private String gender = "";
+
+    public void loadOrder() {
+
+        modelPayment = new DefaultTableModel() {
+            @Override
+            public boolean isCellEditable(int row, int col) {
+                return false;
+            }
+        };
+        modelPayment.addColumn("Id Dish");
+        modelPayment.addColumn("Nombre del Plato");
+        modelPayment.addColumn("Cantidad");
+        modelPayment.addColumn("Precio Total");
+
+        ArrayList<Object[]> datos = new ArrayList<>();
+        datos = FrmDishMenu.orderList;
+        if (datos != null) {
+            for (int i = 0; i < datos.size(); i++) {
+
+                modelPayment.addRow(datos.get(i));
+
+            }
+        } else {
+            JOptionPane.showMessageDialog(rootPane, "No hay Nada Agregado en la Orden");
+        }
+
+        tblSummary.setModel(modelPayment);
+        ocultarColumnasOrder();
+
+    }
+    
+        void ocultarColumnasOrder() {
+
+        tblSummary.getColumnModel().getColumn(0).setMaxWidth(0);
+        tblSummary.getColumnModel().getColumn(0).setMinWidth(0);
+        tblSummary.getColumnModel().getColumn(0).setPreferredWidth(0);
+
+    }
+
 
     void load() throws Exception {
         ClientConnection socket = new ClientConnection("127.0.0.1", 9000);
@@ -25,14 +68,21 @@ public class FrmPaymentSummary extends javax.swing.JInternalFrame {
 
         lblOrder.setText("Pedido No: " + orderNumber);
         txtName.setText(FrmPrincipal.txtName.getText());
-        
+
         ClientConnection sock = new ClientConnection("127.0.0.1", 9000);
         try {
             sock.createConnectionMsg();
             txtGender.setText(sock.clientGender(Integer.parseInt(FrmPrincipal.txtId.getText())));
         } catch (Exception e) {
         }
-        
+
+        ClientConnection soc = new ClientConnection("127.0.0.1", 9000);
+        try {
+            soc.createConnectionMsg();
+            gender = String.valueOf(socket.clientGender(Integer.parseInt(FrmPrincipal.txtId.getText())));
+            socket.closeConnection();
+        } catch (Exception e) {
+        }
         txtTable.setText(String.valueOf(tableGenerator()));
     }
 
@@ -63,7 +113,6 @@ public class FrmPaymentSummary extends javax.swing.JInternalFrame {
         jPanel1 = new javax.swing.JPanel();
         jPanel2 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
-        tblSummary = new javax.swing.JTable();
         lblOrder = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
         txtTable = new javax.swing.JTextField();
@@ -162,6 +211,7 @@ public class FrmPaymentSummary extends javax.swing.JInternalFrame {
     private void btnOKActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnOKActionPerformed
         this.dispose();
         con(FrmPrincipal.txtType.getText(), Integer.parseInt(FrmPrincipal.txtId.getText()));
+        FrmDishMenu.orderList = null;
         //  FrmLogin.cn.incio();
     }//GEN-LAST:event_btnOKActionPerformed
 
@@ -176,7 +226,7 @@ public class FrmPaymentSummary extends javax.swing.JInternalFrame {
     private javax.swing.JPanel jPanel2;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JLabel lblOrder;
-    private javax.swing.JTable tblSummary;
+    public static final javax.swing.JTable tblSummary = new javax.swing.JTable();
     private javax.swing.JTextField txtGender;
     private javax.swing.JTextField txtName;
     private javax.swing.JTextField txtTable;

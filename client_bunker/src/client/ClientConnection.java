@@ -725,7 +725,7 @@ public class ClientConnection {
      public String clientGender(int id) {
         String ans = "";
         try {
-            outMsg.writeUTF("last_name");
+            outMsg.writeUTF("client_gender");
             ans = inMsg.readUTF();
             System.out.println("Respuesta: " + ans);
             outMsg.writeUTF(String.valueOf(id));
@@ -771,7 +771,54 @@ public class ClientConnection {
     
     }
     
+    public ArrayList<Object[]> order() throws IOException, ClassNotFoundException {
+        String ans = "";
+        try {
+            outMsg.writeUTF("order");
+            ans = inMsg.readUTF();
+            System.out.println("Respuesta: " + ans);
+            outMsg.writeUTF("ok...");
+
+            ArrayList<Object[]> data = new ArrayList<>();
+            int numdata = Integer.parseInt(inMsg.readUTF());
+            System.out.println("Numero de datos: " + numdata);
+            inObject = new ObjectInputStream(socket.getInputStream());
+            for (int i = 0; i < numdata; i++) {
+
+                data.add((Object[]) inObject.readObject());
+
+            }
+            
+            return data;
+
+        } catch (IOException ex) {
+            System.out.println("Error al realizar la conexión");
+            return null;
+
+        }
     
+    }
+    
+        public boolean updateOrderState(String id) {
+        String ans = "";
+        try {
+            outMsg.writeUTF("update_order_status");
+            ans = inMsg.readUTF();
+            System.out.println("Respuesta: " + ans);
+            outMsg.writeUTF(id);
+            if (inMsg.readUTF().equals("OK")) {
+                return true;
+            } else {
+                return false;
+            }
+
+        } catch (IOException ex) {
+            System.out.println("Error al realizar la conexión");
+            return false;
+
+        }
+
+    }
     
      public String serverState() {
         String ans = "";

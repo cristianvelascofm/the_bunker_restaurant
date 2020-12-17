@@ -1,30 +1,26 @@
 package view;
 
 import client.ClientConnection;
-import java.io.File;
 import java.util.ArrayList;
-import javax.swing.ImageIcon;
-import javax.swing.JFileChooser;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 
+public final class FrmOrderPending extends javax.swing.JInternalFrame {
 
-public class FrmOrder extends javax.swing.JInternalFrame {
-
-    public FrmOrder() throws Exception {
+    public FrmOrderPending() throws Exception {
         initComponents();
         this.setSize(647, 470);
+        txtId.setVisible(false);
         loadOrder();
     }
-    
-    
-    
-    
+
     DefaultTableModel model = new DefaultTableModel();
 
     void loadOrder() throws Exception {
         ClientConnection socket = new ClientConnection("127.0.0.1", 9000);
-        
+
         model = new DefaultTableModel() {
             @Override
             public boolean isCellEditable(int row, int col) {
@@ -38,19 +34,17 @@ public class FrmOrder extends javax.swing.JInternalFrame {
         ArrayList<Object[]> data = new ArrayList<>();
         try {
             socket.createConnectionMsg();
-            data =socket.order();
+            data = socket.orderHold();
             socket.closeConnection();
         } catch (Exception e) {
         }
-        
+
         for (int i = 0; i < data.size(); i++) {
 
             model.addRow(data.get(i));
 
         }
         tblOrder.setModel(model);
-
-        
 
     }
 
@@ -66,6 +60,8 @@ public class FrmOrder extends javax.swing.JInternalFrame {
         jPanel2 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         tblOrder = new javax.swing.JTable();
+        btnDispatch = new javax.swing.JButton();
+        txtId = new javax.swing.JTextField();
 
         setClosable(true);
         setTitle("Pedidos");
@@ -86,10 +82,28 @@ public class FrmOrder extends javax.swing.JInternalFrame {
                 "Categoriía", "Nombre", "Descripción", "Estado"
             }
         ));
+        tblOrder.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                tblOrderMouseClicked(evt);
+            }
+        });
         jScrollPane1.setViewportView(tblOrder);
 
         jPanel2.add(jScrollPane1);
-        jScrollPane1.setBounds(20, 30, 580, 380);
+        jScrollPane1.setBounds(20, 22, 580, 350);
+
+        btnDispatch.setFont(new java.awt.Font("Arial", 0, 14)); // NOI18N
+        btnDispatch.setIcon(new javax.swing.ImageIcon(getClass().getResource("/files/Proveedores.png"))); // NOI18N
+        btnDispatch.setText("Despachar Pedido");
+        btnDispatch.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnDispatchActionPerformed(evt);
+            }
+        });
+        jPanel2.add(btnDispatch);
+        btnDispatch.setBounds(400, 380, 200, 30);
+        jPanel2.add(txtId);
+        txtId.setBounds(30, 390, 6, 20);
 
         getContentPane().add(jPanel2);
         jPanel2.setBounds(10, 10, 610, 420);
@@ -97,10 +111,44 @@ public class FrmOrder extends javax.swing.JInternalFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    private void btnDispatchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDispatchActionPerformed
+        if (txtId.getText().length() == 0) {
+            JOptionPane.showMessageDialog(rootPane, "Seleccione el Pedido a Despachar");
+            tblOrder.requestFocus();
+            return;
+        }
+
+        ClientConnection socket = new ClientConnection("127.0.0.1", 9000);
+        boolean ans = false;
+        try {
+            socket.createConnectionMsg();
+            ans = socket.updateOrderState(txtId.getText());
+            socket.closeConnection();
+        } catch (Exception e) {
+        }
+        if (ans == true){
+            JOptionPane.showMessageDialog(rootPane, "Pedido Entregado");
+        }else{
+            JOptionPane.showMessageDialog(rootPane, "Error al Despachar");
+        }
+        try {
+            loadOrder();
+        } catch (Exception ex) {
+            Logger.getLogger(FrmOrderPending.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_btnDispatchActionPerformed
+
+    private void tblOrderMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblOrderMouseClicked
+        int numFila = tblOrder.getSelectedRow();
+        txtId.setText(String.valueOf(numFila));
+    }//GEN-LAST:event_tblOrderMouseClicked
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnDispatch;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTable tblOrder;
+    private javax.swing.JTextField txtId;
     // End of variables declaration//GEN-END:variables
 }

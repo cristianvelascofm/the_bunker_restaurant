@@ -399,7 +399,7 @@ public class ServerThread extends Thread {
                 data = dBClient.clientGender(Integer.parseInt(action));
                 out.writeUTF(data);
 
-            } else if (action.equals("order_hold")) {
+            } else if (action.equals("order")) {
 
                 out.writeUTF("Cargando ...");
                 action = in.readUTF();
@@ -412,6 +412,32 @@ public class ServerThread extends Thread {
 
                     outObject.writeObject(data.get(i));
 
+                }
+            } else if (action.equals("order_hold")) {
+
+                out.writeUTF("Cargando ...");
+                action = in.readUTF();
+                System.out.println("Resp:!" + action);
+                ArrayList<Object[]> data = new ArrayList<>();
+                data = dBOrder.fillTableOrderHold();
+                out.writeUTF(String.valueOf(data.size()));
+                outObject = new ObjectOutputStream(socket.getOutputStream());
+                for (int i = 0; i < data.size(); i++) {
+
+                    outObject.writeObject(data.get(i));
+
+                }
+            } else if (action.equals("update_order_status")) {
+
+                out.writeUTF("Despachando Pedido...");
+                System.out.println("Despachando Pedido ...");
+                action = in.readUTF();
+                if (dBOrder.updateOrderStatus(Integer.parseInt(action))) {
+                    out.writeUTF("OK");
+                    System.out.println("Despachado con Éxito");
+                } else {
+                    out.writeUTF("error");
+                    System.out.println("Error al Despachar");
                 }
             } else if (action.equals("server_state")) {
 

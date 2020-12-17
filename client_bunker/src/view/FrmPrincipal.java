@@ -19,9 +19,8 @@ public class FrmPrincipal extends javax.swing.JFrame {
         desktop.setSize(screenSize.width, screenSize.height);
         pnlUser.setBackground(new Color(0, 0, 0, 32));
 
-       // connector();
+        // connector();
     }
-
 
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
@@ -128,6 +127,11 @@ public class FrmPrincipal extends javax.swing.JFrame {
         orderMenuItem.setIcon(new javax.swing.ImageIcon(getClass().getResource("/files/Pedidos_1.png"))); // NOI18N
         orderMenuItem.setMnemonic('c');
         orderMenuItem.setText("Todos los Pedidos");
+        orderMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                orderMenuItemActionPerformed(evt);
+            }
+        });
         menuOrder.add(orderMenuItem);
 
         menuBar.add(menuOrder);
@@ -264,6 +268,23 @@ public class FrmPrincipal extends javax.swing.JFrame {
     }//GEN-LAST:event_statisticMenuItemActionPerformed
 
     private void pendingMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_pendingMenuItemActionPerformed
+        FrmOrderPending form = null;
+        try {
+            form = new FrmOrderPending();
+        } catch (Exception ex) {
+            Logger.getLogger(FrmPrincipal.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        Dimension size = form.getSize();
+
+        int width = (screenSize.width - size.width) / 2;
+        int height = (screenSize.height - size.height) / 3;
+        form.setLocation(width, height);
+        desktop.add(form);
+        form.toFront();
+        form.setVisible(true);
+    }//GEN-LAST:event_pendingMenuItemActionPerformed
+
+    private void orderMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_orderMenuItemActionPerformed
         FrmOrder form = null;
         try {
             form = new FrmOrder();
@@ -278,13 +299,13 @@ public class FrmPrincipal extends javax.swing.JFrame {
         desktop.add(form);
         form.toFront();
         form.setVisible(true);
-    }//GEN-LAST:event_pendingMenuItemActionPerformed
+    }//GEN-LAST:event_orderMenuItemActionPerformed
 
     /**
      * @param args the command line arguments
      */
     public static void main(String args[]) {
- 
+
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
                 new FrmPrincipal().setVisible(true);

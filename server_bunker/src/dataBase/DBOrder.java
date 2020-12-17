@@ -180,5 +180,85 @@ public class DBOrder {
         return datos;
 
     }
+    
+        public ArrayList<Object[]> fillTableOrderHold() throws Exception {
+        Connect mysql = new Connect();
+        Connection cn = mysql.conectar();
+        totalRegistro = 0;
+        ArrayList<Object[]> datos = new ArrayList<>();
+        sSQL = "SELECT orders.ordIdOrder, "
+                + " orders.ordDateOrder, orders.ordStateOrder "
+                + "FROM orders WHERE orders.ordStateOrder='PENDIENTE' "
+                + " ORDER BY orders.ordDateOrder ASC";
+
+        try {
+
+            PreparedStatement pst = cn.prepareStatement(sSQL);
+            resultado = pst.executeQuery();
+            resultadoMeta = resultado.getMetaData();
+
+        } catch (Exception e) {
+            System.out.println("No Correcto" + e);
+        }
+        try {
+            while (resultado.next()) {
+                Object[] filas = new Object[12];
+                for (int i = 0; i < resultadoMeta.getColumnCount(); i++) {
+
+                    filas[i] = resultado.getObject(i + 1);
+
+                }
+                totalRegistro = totalRegistro + 1;
+                datos.add(filas);
+            }
+        } catch (Exception e) {
+
+            JOptionPane.showConfirmDialog(null, e);
+            return null;
+        } finally {
+            try {
+                cn.close();
+
+            } catch (SQLException sqle) {
+                throw new Exception("Error cerrar " + sqle.getMessage());
+            }
+
+        }
+
+        return datos;
+
+    }
+        
+      //Actualizar Estado del Pedido
+    public boolean updateOrderStatus(int id) throws Exception {
+        Connect mysql = new Connect();
+        Connection cn = mysql.conectar();
+        sSQL = "UPDATE orders SET orders.ordStateOrder=?"
+                + "WHERE orders.ordIdOrder=?";
+
+        try {
+            PreparedStatement pst = cn.prepareStatement(sSQL);
+            pst.setString(1, "OK");
+            pst.setInt(2, id);
+
+            int n = pst.executeUpdate();
+            if (n != 0) {
+                return true;
+            } else {
+                return false;
+            }
+        } catch (Exception ex) {
+            JOptionPane.showConfirmDialog(null, ex.getMessage());
+            return false;
+        } finally {
+            try {
+                cn.close();
+
+            } catch (SQLException sqle) {
+                throw new Exception("Error cerrar " + sqle.getMessage());
+            }
+
+        }
+    }
 
 }
